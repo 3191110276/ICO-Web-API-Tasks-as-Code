@@ -1,0 +1,1740 @@
+---
+name: List Rooms
+reference: ListRooms
+description: Lists Rooms in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+method: GET
+path: /v1/rooms
+body:
+outputs:
+  - name: Rooms
+    reference: rooms
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Room Details
+reference: GetRoomDetails
+description: Get Details for a Room in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The ID of the Room for which you want to get further details
+optional_inputs:
+method: GET
+path: /v1/rooms/{{.global.task.input.room_id}}
+body:
+outputs:
+  - name: Room ID
+    reference: id
+    type: string
+    path: $.id
+  - name: Title
+    reference: title
+    type: string
+    path: $.title
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.type
+  - name: Locked
+    reference: is_locked
+    type: boolean
+    path: $.isLocked
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.teamId
+  - name: Last Activity
+    reference: last_activity
+    type: string
+    path: $.lastActivity
+  - name: Creator ID
+    reference: creator_id
+    type: string
+    path: $.creatorId
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Owner ID
+    reference: owner_id
+    type: string
+    path: $.ownerId
+  - name: Classification ID
+    reference: classification_id
+    type: string
+    path: $.classificationId
+  - name: Announcement Space
+    reference: is_announcement
+    type: boolean
+    path: $.isAnnouncementOnly
+  - name: Read Only
+    reference: read_only
+    type: boolean
+    path: $.isReadOnly
+  - name: Public
+    reference: is_public
+    type: boolean
+    path: $.isPublic
+  - name: Made Public Date
+    reference: made_public
+    type: string
+    path: $.madePublic
+  - name: Description
+    reference: description
+    type: string
+    path: $.description
+rollback:
+---
+name: Delete Room
+reference: DeleteRoom
+description: Deletes a Room in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: id
+    type: string
+    description: The ID of the Room that should be deleted
+method: DELETE
+path: /v1/rooms/{{.global.task.input.id}}
+body:
+outputs:
+rollback:
+---
+name: Create Room
+reference: CreateRoom
+description: Creates a Room in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Title
+    reference: title
+    type: string
+    description: The name of the Room that should be created
+optional_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the team that this room should be associated with
+  - name: Classification ID
+    reference: classification_id
+    type: string
+    description: Space Classification policy as designated by your organization
+  - name: Moderated
+    reference: is_locked
+    type: boolean
+    description: Configures the new Room as moderated/locked
+  - name: Public
+    reference: is_public
+    type: boolean
+    description: Determines if the new Room will be public and thus discoverable
+  - name: Description
+    reference: description
+    type: string
+    description: The description of the new Room
+  - name: Announcement Room
+    reference: is_announcement
+    type: boolean
+    description: Determines if the new Room will be used for announcements only
+method: POST
+path: /v1/rooms
+body: >-
+  {
+    {{with $x := .global.task.input.team_id}}"teamId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.classification_id}}"classificationId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.is_locked}}"isLocked": {{$x}},{{end}}
+    {{with $x := .global.task.input.is_public}}"isPublic": {{$x}},{{end}}
+    {{with $x := .global.task.input.description}}"description": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.is_announcement}}"isAnnouncementOnly": {{$x}},{{end}}
+    "title": "$input.title"
+  }
+outputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.id
+  - name: Owner ID
+    reference: owner_id
+    type: string
+    path: $.ownerId
+  - name: Classification ID
+    reference: classification_id
+    type: string
+    path: $.classificationId
+rollback:
+  task: DeleteRoom
+  inputs:
+    - id: output.room_id
+---
+name: Get Attachment Action Details
+reference: GetAttachmentActionDetails
+description: Get Details for an Attachment Action in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs: 
+  - name: Attachment Action ID
+    reference: attachment_action_id
+    type: string
+    description: the ID of the Attachment Action
+optional_inputs:
+method: GET
+path: /v1/attachment/actions/{{.global.task.input.attachment_action_id}}
+body:
+outputs:
+  - name: Attachment Action ID
+    reference: attachment_action_id
+    type: string
+    path: $.id
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Type
+    reference: type
+    type: string
+    path: $.type
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.messageId
+  - name: Inputs
+    reference: inputs
+    type: json
+    path: $.inputs
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Create Attachment Action
+reference: CreateAttachmentAction
+description: Creates an Attachment Action in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Type
+    reference: type
+    type: string
+    description: The type of action that should be executed
+  - name: Message ID
+    reference: message_id
+    type: string
+    description: The message which contains the attachment
+  - name: Inputs
+    reference: inputs
+    type: json
+    description: The Action inputs that should be sent
+optional_inputs:
+method: POST
+path: /v1/attachment/actions
+body: >-
+  {
+    "type": "{{.global.task.input.type}}",
+    "messageId": "{{.global.task.input.message_id}}",
+    "inputs": {{.global.task.input.inputs}}
+  }
+outputs:
+  - name: Attachment Action ID
+    reference: attachment_action_id
+    type: string
+    path: $.id
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.type
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.messageId
+  - name: Inputs
+    reference: inputs
+    type: json
+    path: $.inputs
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: List Memberships
+reference: ListMemberships
+description: List Memberships for a Room in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+method: GET
+path: /v1/memberships
+body:
+outputs:
+  - name: Memberships
+    reference: memberships
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Membership Details
+reference: GetMembershipDetails
+description: Get Membership Details for a Room in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    description: The Membership ID for which you want to get details
+optional_inputs:
+method: GET
+path: /v1/memberships/{{.global.task.input.membership_id}}
+body:
+outputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    path: $.id
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Person Displayname
+    reference: person_display_name
+    type: string
+    path: $.personDisplayName
+  - name: Person Organization ID
+    reference: person_org_id
+    type: string
+    path: $.personOrgId
+  - name: Is Moderator
+    reference: is_moderator
+    type: boolean
+    path: $.isModerator
+  - name: Is Hidden Room
+    reference: is_hidden_room
+    type: boolean
+    path: $.isRoomHidden
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Delete Membership
+reference: DeleteMembership
+description: Deletes a Membership by ID in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Membership ID
+    reference: id
+    type: string
+    description: The ID of the Membership that should be deleted
+method: DELETE
+path: /v1/memberships/{{.global.task.input.id}}
+body:
+outputs:
+rollback:
+---
+name: Create Membership
+reference: CreateMembership
+description: Creates a Membership in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The ID of the Room where you want to add a member
+optional_inputs:
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The ID of the person you want to add to the Room - either ID or E-Mail are required
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The E-Mail of the person you want to add to the Room - either ID or E-Mail are required
+  - name: Moderator
+    reference: is_moderator
+    type: boolean
+    description: Determines if the new user should be a moderator
+method: DELETE
+path: /v1/memberships
+body: >-
+  {
+    {{with $x := .global.task.input.person_id}}"personId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.person_email}}"personEmail": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.is_moderator}}"isModerator": {{$x}},{{end}}
+    "roomId": "{{.global.task.input.room_id}}"
+  }
+outputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    path: $.id
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Person Display Name
+    reference: person_displayname
+    type: string
+    path: $.personDisplayName
+  - name: Person Organization ID
+    reference: person_org_id
+    type: string
+    path: $.personOrgId
+  - name: Moderator
+    reference: is_moderator
+    type: boolean
+    path: $.isModerator
+  - name: Hidden Room
+    reference: is_hidden
+    type: boolean
+    path: $.isRoomHidden
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+  task: DeleteMembership
+  inputs:
+    - id: output.membership_id
+---
+name: List Messages
+reference: ListMessages
+description: Lists Messages in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The ID of the Room in which you want to list messages
+optional_inputs:
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    description: List messages with a specific parent ID
+  - name: Mentioned People
+    reference: mentioned_people
+    type: string
+    description: Retrieve messages that mention specific people by ID
+  - name: Before Date
+    reference: before_date
+    type: string
+    description: Lists messages sent before a specific date
+  - name: Before Message
+    reference: before_message
+    type: string
+    description: Lists messages sent before a message with a specific ID
+  - name: Number of messages
+    reference: max_msg
+    type: integer
+    description: The maximum number of messages to retrieve - defaults to 50
+method: GET
+path: /v1/messages?roomId={{.global.task.input.room_id}}{{with $x := .global.task.input.parent_id}}&parentId={{$x}}{{end}}{{with $x := .global.task.input.mentioned_people}}&mentionedPeople={{$x}}{{end}}{{with $x := .global.task.input.before_date}}&before={{$x}}{{end}}{{with $x := .global.task.input.before_message}}&beforeMessage={{$x}}{{end}}{{with $x := .global.task.input.max_msg}}&max={{$x}}{{end}}
+body:
+outputs:
+  - name: Messages
+    reference: messages
+    type: json
+    path: $.items
+rollback:
+---
+name: List Direct Messages
+reference: ListDirectMessages
+description: Lists DirectMessages in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    description: List messages with a specific parent ID
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The ID of the person with which the conversation happened  - either ID or E-Mail are required
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The E-Mail of the person with which the conversation happened  - either ID or E-Mail are required
+method: GET
+path: /v1/messages/direct?{{with $x := .global.task.input.person_id}}personId={{$x}}{{end}}{{with $x := .global.task.input.person_email}}personEmail={{$x}}{{end}}{{with $x := .global.task.input.parent_id}}&parentId={{$x}}{{end}}
+body:
+outputs:
+  - name: Messages
+    reference: messages
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Message Details
+reference: GetMessageDetails
+description: Get Message Details by ID in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    description: Get message by its ID
+optional_inputs:
+method: PUT
+path: /v1/messages/{{.global.task.input.message_id}}
+body:
+outputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.id
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    path: $.parentId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Text
+    reference: text
+    type: string
+    path: $.text
+  - name: Markdown
+    reference: markdown
+    type: string
+    path: $.markdown
+  - name: HTML
+    reference: html
+    type: string
+    path: $.html
+  - name: Files
+    reference: files
+    type: json
+    path: $.files
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Mentioned People
+    reference: mentioned_people
+    type: json
+    path: $.mentionedPeople
+  - name: Mentioned Groups
+    reference: mentioned_groups
+    type: json
+    path: $.mentionedGroups
+  - name: Attachments
+    reference: attachments
+    type: json
+    path: $.attachments
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Update Date
+    reference: update_date
+    type: string
+    path: $.updated
+  - name: Voice Clip
+    reference: is_voice_clip
+    type: boolean
+    path: $.isVoiceClip
+rollback:
+---
+name: Edit Message
+reference: EditMessage
+description: Edit Message by ID in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    description: Edit message with a specific
+optional_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The Room in which the message is located
+  - name: Text
+    reference: text
+    type: string
+    description: The new text that should be used for the message
+  - name: Markdown
+    reference: markdown
+    type: string
+    description: The new markdown that should be used for the message
+method: GET
+path: /v1/messages/{{.global.task.input.message_id}}
+body: >-
+  {
+    {{with $x := .global.task.input.text}}"text": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.markdown}}"markdown": {{$x}},{{end}}
+    {{with $x := .global.task.input.room_id}}"roomId": "{{$x}}"{{end}}
+  }
+outputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.id
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    path: $.parentId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Text
+    reference: text
+    type: string
+    path: $.text
+  - name: Markdown
+    reference: markdown
+    type: string
+    path: $.markdown
+  - name: HTML
+    reference: html
+    type: string
+    path: $.html
+  - name: Files
+    reference: files
+    type: json
+    path: $.files
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Mentioned People
+    reference: mentioned_people
+    type: json
+    path: $.mentionedPeople
+  - name: Mentioned Groups
+    reference: mentioned_groups
+    type: json
+    path: $.mentionedGroups
+  - name: Attachments
+    reference: attachments
+    type: json
+    path: $.attachments
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Update Date
+    reference: update_date
+    type: string
+    path: $.updated
+  - name: Voice Clip
+    reference: is_voice_clip
+    type: boolean
+    path: $.isVoiceClip
+rollback:
+---
+name: Delete Message
+reference: DeleteMessage
+description: Deletes a Message in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    description: The ID of the Message that should be deleted
+method: DELETE
+path: /v1/messages/{{.global.task.input.message_id}}
+body:
+outputs:
+rollback:
+---
+name: Create Text Message
+reference: CreateTextMessage
+description: Create Text Message in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The Room to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The Person ID to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The Person E-Mail to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    description: The Parent ID allows you to send the message as a thread reply to another message
+  - name: Text
+    reference: text
+    type: string
+    description: The text that should be used for the message
+  - name: Markdown
+    reference: markdown
+    type: string
+    description: The markdown that should be used for the message
+method: POST
+path: /v1/messages
+body: >-
+  {
+    {{with $x := .global.task.input.parent_id}}"parentId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.text}}"text": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.markdown}}"markdown": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.room_id}}"roomId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_id}}"toPersonId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_email}}"toPersonEmail": "{{$x}}"{{end}}
+  }
+outputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.id
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    path: $.parentId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Text
+    reference: text
+    type: string
+    path: $.text
+  - name: Markdown
+    reference: markdown
+    type: string
+    path: $.markdown
+  - name: HTML
+    reference: html
+    type: string
+    path: $.html
+  - name: Files
+    reference: files
+    type: json
+    path: $.files
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Mentioned People
+    reference: mentioned_people
+    type: json
+    path: $.mentionedPeople
+  - name: Mentioned Groups
+    reference: mentioned_groups
+    type: json
+    path: $.mentionedGroups
+  - name: Attachments
+    reference: attachments
+    type: json
+    path: $.attachments
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Update Date
+    reference: update_date
+    type: string
+    path: $.updated
+  - name: Voice Clip
+    reference: is_voice_clip
+    type: boolean
+    path: $.isVoiceClip
+rollback:
+  task: DeleteMessage
+  inputs:
+    - message_id: output.message_id
+---
+name: Create Message with File
+reference: CreateFileMessage
+description: Create Message with File in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The Room to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The Person ID to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The Person E-Mail to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    description: The Parent ID allows you to send the message as a thread reply to another message
+  - name: Files
+    reference: files
+    type: json
+    description: The files that should be sent with this message
+method: POST
+path: /v1/messages
+body: >-
+  {
+    {{with $x := .global.task.input.parent_id}}"parentId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.files}}"files": {{$x}},{{end}}
+    {{with $x := .global.task.input.room_id}}"roomId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_id}}"toPersonId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_email}}"toPersonEmail": "{{$x}}"{{end}}
+  }
+outputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.id
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    path: $.parentId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Text
+    reference: text
+    type: string
+    path: $.text
+  - name: Markdown
+    reference: markdown
+    type: string
+    path: $.markdown
+  - name: HTML
+    reference: html
+    type: string
+    path: $.html
+  - name: Files
+    reference: files
+    type: json
+    path: $.files
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Mentioned People
+    reference: mentioned_people
+    type: json
+    path: $.mentionedPeople
+  - name: Mentioned Groups
+    reference: mentioned_groups
+    type: json
+    path: $.mentionedGroups
+  - name: Attachments
+    reference: attachments
+    type: json
+    path: $.attachments
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Update Date
+    reference: update_date
+    type: string
+    path: $.updated
+  - name: Voice Clip
+    reference: is_voice_clip
+    type: boolean
+    path: $.isVoiceClip
+rollback:
+  task: DeleteMessage
+  inputs:
+    - message_id: output.message_id
+---
+name: Create Message with Adaptive Card
+reference: CreateAdaptiveCardMessage
+description: Create Message with Adaptive Card in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The Room to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The Person ID to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The Person E-Mail to which this message should be sent - provide either Room ID, Person ID, or Person E-Mail
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    description: The Parent ID allows you to send the message as a thread reply to another message
+  - name: Adaptive Card
+    reference: adaptive_card
+    type: json
+    description: The Adaptive Card that should be sent with this message
+method: POST
+path: /v1/messages
+body: >-
+  {
+    {{with $x := .global.task.input.parent_id}}"parentId": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.adaptive_card}}"attachments": {{$x}},{{end}}
+    {{with $x := .global.task.input.room_id}}"roomId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_id}}"toPersonId": "{{$x}}"{{end}}
+    {{with $x := .global.task.input.person_email}}"toPersonEmail": "{{$x}}"{{end}}
+  }
+outputs:
+  - name: Message ID
+    reference: message_id
+    type: string
+    path: $.id
+  - name: Parent ID
+    reference: parent_id
+    type: string
+    path: $.parentId
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Text
+    reference: text
+    type: string
+    path: $.text
+  - name: Markdown
+    reference: markdown
+    type: string
+    path: $.markdown
+  - name: HTML
+    reference: html
+    type: string
+    path: $.html
+  - name: Files
+    reference: files
+    type: json
+    path: $.files
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Mentioned People
+    reference: mentioned_people
+    type: json
+    path: $.mentionedPeople
+  - name: Mentioned Groups
+    reference: mentioned_groups
+    type: json
+    path: $.mentionedGroups
+  - name: Attachments
+    reference: attachments
+    type: json
+    path: $.attachments
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Update Date
+    reference: update_date
+    type: string
+    path: $.updated
+  - name: Voice Clip
+    reference: is_voice_clip
+    type: boolean
+    path: $.isVoiceClip
+rollback:
+  task: DeleteMessage
+  inputs:
+    - message_id: output.message_id
+---
+name: List Room Tabs
+reference: ListRoomTabs
+description: Lists Room Tabs in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The ID of the Room for which you want to fetch the tabs
+optional_inputs:
+method: GET
+path: /v1/rooms/tabs?roomId={{.global.task.input.room_id}}
+body:
+outputs:
+  - name: Room Tabs
+    reference: room_tabs
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Room Tab Details
+reference: GetRoomTabDetails
+description: Get Details for Room Tab in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    description: The ID of the Room Tab for which you want to get details
+optional_inputs:
+method: GET
+path: /v1/rooms/tabs/{{.global.task.input.room_tab_id}}
+body:
+outputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    path: $.id
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Display Name
+    reference: display_name
+    type: string
+    path: $.displayName
+  - name: Content URL
+    reference: content_url
+    type: string
+    path: $.contentUrl
+  - name: Creator ID
+    reference: creator_id
+    type: string
+    path: $.creatorId
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Update Room Tab
+reference: UpdateRoomTab
+description: Update a Room Tab in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    description: The ID of the Room Tab for which you want to update
+  - name: Content URL
+    reference: content_url
+    type: string
+    description: The URL of the content you want to display in the Room Tab - must use https
+  - name: Display Name
+    reference: display_name
+    type: string
+    description: The Display Name of the Room Tab
+optional_inputs:
+method: PUT
+path: /v1/rooms/tabs
+body: >-
+  {
+    "roomId": "{{.global.task.input.room_tab_id}}",
+    "contentUrl": "{{.global.task.input.content_url}}",
+    "displayName": "{{.global.task.input.display_name}}"
+  }
+outputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    path: $.id
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Display Name
+    reference: display_name
+    type: string
+    path: $.displayName
+  - name: Content URL
+    reference: content_url
+    type: string
+    path: $.contentUrl
+  - name: Creator ID
+    reference: creator_id
+    type: string
+    path: $.creatorId
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Delete Room Tab
+reference: DeleteRoomTab
+description: Deletes a Room Tab in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    description: The ID of the Room Tab that should be deleted
+method: DELETE
+path: /v1/room/tabs/{{.global.task.input.room_tab_id}}
+body:
+outputs:
+rollback:
+---
+name: Create Room Tab
+reference: CreateRoomTab
+description: Create Room Tab in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Room ID
+    reference: room_id
+    type: string
+    description: The ID of the Room in which you want to create a Room Tab
+  - name: Content URL
+    reference: content_url
+    type: string
+    description: The URL of the content you want to display in the Room Tab - must use https
+  - name: Display Name
+    reference: display_name
+    type: string
+    description: The Display Name of the Room Tab
+optional_inputs:
+method: POST
+path: /v1/rooms/tabs
+body: >-
+  {
+    "roomId": "{{.global.task.input.room_id}}",
+    "contentUrl": "{{.global.task.input.content_url}}",
+    "displayName": "{{.global.task.input.display_name}}"
+  }
+outputs:
+  - name: Room Tab ID
+    reference: room_tab_id
+    type: string
+    path: $.id
+  - name: Room ID
+    reference: room_id
+    type: string
+    path: $.roomId
+  - name: Room Type
+    reference: room_type
+    type: string
+    path: $.roomType
+  - name: Display Name
+    reference: display_name
+    type: string
+    path: $.displayName
+  - name: Content URL
+    reference: content_url
+    type: string
+    path: $.contentUrl
+  - name: Creator ID
+    reference: creator_id
+    type: string
+    path: $.creatorId
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+  task: DeleteRoomTab
+  inputs:
+    - room_tab_id: output.room_tab_id
+---
+name: List Team Memberships
+reference: ListTeamMemberships
+description: Lists Team Memberships in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the Team for which you want to fetch the Memberships
+optional_inputs:
+  - name: Maximum Results
+    reference: max_results
+    type: string
+    description: The maximum amount of results to return - defaults to 100
+method: GET
+path: /v1/team/memberships?teamId={{.global.task.input.team_id}}{{with $x := .global.task.input.max_results}}&max={{$x}}{{end}}
+body:
+outputs:
+  - name: Team Memberships
+    reference: team_memberships
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Team Memberships Details
+reference: GetTeamMembershipDetails
+description: Get Details for a Team Membership in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    description: The ID of the Membership for which you want to fetch details
+optional_inputs:
+method: GET
+path: /v1/team/memberships/{{.global.task.input.membership_id}}
+body:
+outputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    path: $.id
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.teamId
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Person Display Name
+    reference: person_display_name
+    type: string
+    path: $.personDisplayName
+  - name: Person Organization ID
+    reference: person_org_id
+    type: string
+    path: $.personOrgId
+  - name: Moderator
+    reference: is_moderator
+    type: boolean
+    path: $.isModerator
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Delete Team Membership
+reference: DeleteTeamMembership
+description: Deletes a Team Membership in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    description: The ID of the Team Membership that should be deleted
+method: DELETE
+path: /v1/team/membership/{{.global.task.input.membership_id}}
+body:
+outputs:
+rollback:
+---
+name: Create Team Membership
+reference: CreateTeamMembership
+description: Create Membership for Team in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the Membership for which you want to fetch details
+optional_inputs:
+  - name: Person ID
+    reference: person_id
+    type: string
+    description: The ID of the person that should be added to the team - either ID or E-Mail are required
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    description: The E-Mail of the person that should be added to the team - either ID or E-Mail are required
+  - name: Moderator
+    reference: is_moderator
+    type: boolean
+    description: Determines if the new user should be a moderator
+method: POST
+path: /v1/team/memberships
+body: >-
+  {
+    "personId": "Y2lzY29zcGFyazovL3VzL1BFT1BMRS9mNWIzNjE4Ny1jOGRkLTQ3MjctOGIyZi1mOWM0NDdmMjkwNDY",
+    "personEmail": "john.andersen@example.com",
+    "isModerator": true,
+    "teamId": "Y2lzY29zcGFyazovL3VzL1RFQU0vMTNlMThmNDAtNDJmYy0xMWU2LWE5ZDgtMjExYTBkYzc5NzY5"
+  }
+outputs:
+  - name: Membership ID
+    reference: membership_id
+    type: string
+    path: $.id
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.teamId
+  - name: Person ID
+    reference: person_id
+    type: string
+    path: $.personId
+  - name: Person E-Mail
+    reference: person_email
+    type: string
+    path: $.personEmail
+  - name: Person Display Name
+    reference: person_display_name
+    type: string
+    path: $.personDisplayName
+  - name: Person Organization ID
+    reference: person_org_id
+    type: string
+    path: $.personOrgId
+  - name: Moderator
+    reference: is_moderator
+    type: boolean
+    path: $.isModerator
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+  task: DeleteTeamMembership
+  inputs:
+    - membership_id: output.membership_id
+---
+name: List Teams
+reference: ListTeams
+description: Lists Teams in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+  - name: Maximum Results
+    reference: max_results
+    type: string
+    description: The maximum amount of results to return - defaults to 100
+method: GET
+path: /v1/teams{{with $x := .global.task.input.max_results}}?max={{$x}}{{end}}
+body:
+outputs:
+  - name: Teams
+    reference: teams
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Team Details
+reference: GetTeamDetails
+description: Get Details for Team in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the Team that you want to get details for
+optional_inputs:
+method: GET
+path: /v1/teams/{{.global.task.input.team_id}}
+body:
+outputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.id
+  - name: Team Name
+    reference: team_name
+    type: string
+    path: $.name
+  - name: Team Description
+    reference: team_description
+    type: string
+    path: $.description
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Update Team
+reference: UpdateTeam
+description: Update a Team in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the Team that you want to get details for
+  - name: Team Name
+    reference: team_name
+    type: string
+    description: The new name for the Team
+optional_inputs:
+  - name: Team Description
+    reference: team_description
+    type: string
+    description: The new description for the Team
+method: PUT
+path: /v1/teams/{{.global.task.input.team_id}}
+body: >-
+  {
+    {{with $x := .global.task.input.team_description}}"description": "{{$x}}",{{end}}
+    "name": "{{.global.task.input.team_name}}"
+  }
+outputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.id
+  - name: Team Name
+    reference: team_name
+    type: string
+    path: $.name
+  - name: Team Description
+    reference: team_description
+    type: string
+    path: $.description
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+---
+name: Delete Team
+reference: DeleteTeam
+description: Deletes a Team in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    description: The ID of the Team that should be deleted
+method: DELETE
+path: /v1/team/{{.global.task.input.team_id}}
+body:
+outputs:
+rollback:
+---
+name: CreateTeam
+reference: CreateTeam
+description: Create a Team in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Team Name
+    reference: team_name
+    type: string
+    description: The new name for the Team
+optional_inputs:
+  - name: Team Description
+    reference: team_description
+    type: string
+    description: The new description for the Team
+method: POST
+path: /v1/teams
+body: >-
+  {
+    {{with $x := .global.task.input.team_description}}"description": "{{$x}}",{{end}}
+    "name": "{{.global.task.input.team_name}}"
+  }
+outputs:
+  - name: Team ID
+    reference: team_id
+    type: string
+    path: $.id
+  - name: Team Name
+    reference: team_name
+    type: string
+    path: $.name
+  - name: Team Description
+    reference: team_description
+    type: string
+    path: $.description
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+rollback:
+  task: DeleteTeam
+  inputs:
+    - team_id: output.team_id
+---
+name: List Webhooks
+reference: ListWebhooks
+description: Lists Teams in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+optional_inputs:
+method: GET
+path: /v1/webhooks
+body:
+outputs:
+  - name: Webhooks
+    reference: webhooks
+    type: json
+    path: $.items
+rollback:
+---
+name: Get Webhook Details
+reference: GetWebhookDetails
+description: Get Details for Webhook in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Webhook ID
+    reference: webhook_id
+    type: string
+    description: The ID of the Webhook that you want to get details for
+optional_inputs:
+method: GET
+path: /v1/webhooks/{{.global.task.input.webhook_id}}
+body:
+outputs:
+  - name: Webhook ID
+    reference: webhook_id
+    type: string
+    path: $.id
+  - name: Webhook Name
+    reference: webhook_name
+    type: string
+    path: $.name
+  - name: Target URL
+    reference: target_url
+    type: string
+    path: $.targetUrl
+  - name: Resource
+    reference: resource
+    type: string
+    path: $.resource
+  - name: Event
+    reference: event
+    type: string
+    path: $.event
+  - name: Filter
+    reference: filter
+    type: string
+    path: $.filter
+  - name: Secret
+    reference: secret
+    type: string
+    path: $.secret
+  - name: Status
+    reference: status
+    type: string
+    path: $.status
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Owner
+    reference: owner
+    type: string
+    path: $.ownedBy
+rollback:
+---
+name: Delete Webhook
+reference: DeleteWebhook
+description: Deletes a Webhook in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Webhook ID
+    reference: webhook_id
+    type: string
+    description: The ID of the Webhook that should be deleted
+method: DELETE
+path: /v1/webhooks/{{.global.task.input.webhook_id}}
+body:
+outputs:
+rollback:
+---
+name: Create Webhook
+reference: CreateWebhook
+description: Create Webhook in Webex Messaging
+category: Cisco Webex
+target_name: Webex Account
+required_inputs:
+  - name: Name
+    reference: name
+    type: string
+    description: The name of the Webhook you want to create
+  - name: Target URL
+    reference: target_url
+    type: string
+    description: The target URL of the Webhook you want to create
+  - name: Resource
+    reference: resource
+    type: string
+    description: The resource that is being targeted by the Webhook you want to create
+  - name: Event
+    reference: event
+    type: string
+    description: The event type for the Webhook you want to create
+optional_inputs:
+  - name: Filter
+    reference: filter
+    type: string
+    description: The filter that defines the Webhook scope
+  - name: Secret
+    reference: secret
+    type: string
+    description: The secret used to generate the payload signature
+  - name: Owned by
+    reference: owned_by
+    type: string
+    description: Owner - specified when creating an org/admin level webhook
+method: GET
+path: /v1/webhooks
+body: >-
+  {
+    {{with $x := .global.task.input.filter}}"filter": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.secret}}"secret": "{{$x}}",{{end}}
+    {{with $x := .global.task.input.owned_by}}"ownedBy": "{{$x}}",{{end}}
+    "name": "{{.global.task.input.name}}",
+    "targetUrl": "{{.global.task.input.target_url}}",
+    "resource": "{{.global.task.input.resource}}",
+    "event": "{{.global.task.input.event}}"
+  }
+outputs:
+  - name: Webhook ID
+    reference: webhook_id
+    type: string
+    path: $.id
+  - name: Webhook Name
+    reference: webhook_name
+    type: string
+    path: $.name
+  - name: Target URL
+    reference: target_url
+    type: string
+    path: $.targetUrl
+  - name: Resource
+    reference: resource
+    type: string
+    path: $.resource
+  - name: Event
+    reference: event
+    type: string
+    path: $.event
+  - name: Filter
+    reference: filter
+    type: string
+    path: $.filter
+  - name: Secret
+    reference: secret
+    type: string
+    path: $.secret
+  - name: Status
+    reference: status
+    type: string
+    path: $.status
+  - name: Creation Date
+    reference: creation_date
+    type: string
+    path: $.created
+  - name: Owner
+    reference: owner
+    type: string
+    path: $.ownedBy
+rollback:
+  task: DeleteWebhook
+  inputs:
+    - webhook_id: output.webhook_id

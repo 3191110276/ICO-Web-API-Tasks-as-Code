@@ -1,0 +1,145 @@
+{
+    "ClassId":"workflow.TaskDefinition",
+    "DefaultVersion":true,
+    "Description":"{{description}}",
+    "Label":"{{display_name}}",
+    "Name":"{{reference_name}}",
+    "ObjectType":"workflow.TaskDefinition",
+    "Properties":{
+       "ClassId":"workflow.Properties",
+       "Cloneable":true,
+       "ExternalMeta":true,
+       "InputDefinition":[
+         {
+            "Label":"{{target_name}}",
+            "Name":"Target",
+            "Description":"The API call can be made to Intersight or an external endpoint added as Target. Target should be in claimed or connected state. Please refer Supported Endpoints section in the Web API request end user documentation for the list of Intersight Targets on which Web API task can be invoked. An empty value for this input indicates that the API call is made to Intersight.\n",
+            "Required":true,
+            "Properties":[
+               {
+                  "ObjectType":"workflow.TargetProperty",
+                  "DisplayAttributes":[
+                     "Name",
+                     "TargetType"
+                  ],
+                  "Selector":"/api/v1/asset/Targets?$filter=((TargetType eq HTTPEndpoint and Status eq Claimed) or ((TargetType eq PureStorageFlashArray or TargetType eq HitachiVirtualStoragePlatform or TargetType eq NetAppActiveIqUnifiedManager or TargetType eq TerraformCloud or TargetType eq VmwareVcenter or TargetType eq APIC or TargetType eq MDSDevice or TargetType eq NexusDevice or TargetType eq UCSD or TargetType eq RedfishServer or TargetType eq UCSC890) and Status eq Connected))",
+                  "SelectorProperty":{
+                     "Body":null,
+                     "ClassId":"workflow.SelectorProperty",
+                     "Method":"GET",
+                     "ObjectType":"workflow.SelectorProperty"
+                  },
+                  "ConnectorAttribute":"",
+                  "SupportedObjects":[
+                     "asset.Target"
+                  ],
+                  "ConstraintAttributes":[
+                     
+                  ]
+               }
+            ],
+            "ClassId":"workflow.TargetDataType",
+            "CustomDataTypeProperties":{
+               "CatalogMoid":"",
+               "ClassId":"workflow.CustomDataProperty",
+               "CustomDataTypeId":"",
+               "CustomDataTypeName":"",
+               "ObjectType":"workflow.CustomDataProperty"
+            },
+            "Default":{
+               "ClassId":"workflow.DefaultValue",
+               "IsValueSet":false,
+               "ObjectType":"workflow.DefaultValue",
+               "Override":false,
+               "Value":null
+            },
+            "DisplayMeta":{
+               "ClassId":"workflow.DisplayMeta",
+               "InventorySelector":true,
+               "ObjectType":"workflow.DisplayMeta",
+               "WidgetType":"None"
+            },
+            "InputParameters":null,
+            "IsArray":false,
+            "Max":0,
+            "Min":0,
+            "ObjectType":"workflow.TargetDataType",
+            "dirty":true
+         }{% for input in inputs %},{
+            "ClassId":"workflow.PrimitiveDataType",
+            "Label":"{{input['display_name']}}",
+            "Name":"{{input['reference_name']}}",
+            "Description":"{{input['description']}}",
+            "Required":{{ input['required'] | lower }},
+            "Properties":{
+               "Type":"{{input['type']}}",
+               "Constraints":{
+                  "Min":0,
+                  "Max":0
+               },
+               "Secure":false,
+               "InventorySelector":[]
+            },
+            "ObjectType":"workflow.PrimitiveDataType",
+            "InputParameters":null,
+            "dirty":true
+         }{% endfor %}
+       ],
+       "ObjectType":"workflow.Properties",
+       "OutputDefinition":[
+         {% for output in outputs %}{
+            "ClassId":"workflow.PrimitiveDataType",
+            "Label":"{{output['display_name']}}",
+            "Name":"{{output['reference_name']}}",
+            "Properties":{
+               "Type":"{{output['type']}}",
+               "Secure":false,
+               "Constraints":{
+                  "Min":0,
+                  "Max":0
+               },
+               "InventorySelector":[
+                  
+               ]
+            },
+            "ObjectType":"workflow.PrimitiveDataType",
+            "InputParameters":null,
+            "dirty":true
+         }{% if not loop.last %},{% endif %}{% endfor %}
+       ],
+       "RetryCount":3,
+       "RetryDelay":60,
+       "RetryPolicy":"Fixed",
+       "Timeout":600,
+       "TimeoutPolicy":"Timeout"
+    },
+    "Catalog":{
+      "ClassId": "mo.MoRef",
+       "Moid":"{{catalog}}",
+       "ObjectType":"workflow.Catalog"
+    },
+    "RollbackTasks":[
+      {% if rollback != None %}
+      {
+         "Name":"{{rollback['task_name']}}",
+         "Version":1,
+         "TaskMoid":"{{rollback['task_moid']}}",
+         "CatalogMoid":"{{catalog}}",
+         "InputParameters":{
+            "Target":"${task.input.Target}"
+            {% for r in rollback['inputs'] %}
+            ,"{{r['input']}}": {{r['value'] | tojson }}
+            {% endfor %}
+         }
+      }
+      {% endif %}
+    ],
+    "Tags":[
+       {
+          "Key":"category",
+          "Value":"{{category}}"
+       }
+    ],
+    "TaskMetadata":null,
+    "Version":1
+ }

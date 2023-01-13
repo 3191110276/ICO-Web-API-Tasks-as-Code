@@ -1,0 +1,69 @@
+{
+    "Body":{
+       "Batch":[
+          {
+            {% if body != None %}"Body": {{body}},{% endif %}
+             "ContentType":"json",
+             "Description":"{{description}}",
+             "EndpointRequestType":"Internal",
+             "Label":"{{display_name}}",
+             "Method":"{{method}}",
+             "Name":"{{reference_name}}",
+             "ObjectType":"workflow.WebApi",
+             "Outcomes":[
+                
+             ],
+             "ResponseSpec":{
+                "ErrorParameters":[
+                   
+                ],
+                "ObjectType":"content.Grammar",
+                "Parameters":[
+                  {% for output in outputs %}
+                  {
+                     "AcceptSingleValue":false,
+                     "ComplexType":"",
+                     "ItemType":"simple",
+                     "Name":"{{output['reference_name']}}",
+                     "ObjectType":"content.Parameter",
+                     "Path":"{{output['jsonpath']}}",
+                     "Secure":false,
+                     "Type":"{{output['type']}}"
+                  }{% if not loop.last %},{% endif %}
+                  {% endfor %}
+                ],
+                "Types":[
+                   
+                ]
+             },
+             "TargetType":"Endpoint",
+             "Url":"{{path}}"
+          }
+       ],
+       "CancelAction":[
+          
+       ],
+       "ClassId":"workflow.BatchApiExecutor",
+       "Constraints":{
+          "ObjectType":"workflow.TaskConstraints"
+       },
+       "Description":"{{description}}",
+       "Name":"{{display_name}}",
+       "ObjectType":"workflow.BatchApiExecutor",
+       "Output":{
+         {% for output in outputs %}
+         "{{output['reference_name']}}": "{{'{{.global.'}}{{reference_name}}{{'.output.'}}{{output['reference_name']}}{{'}}'}}"
+         {% if not loop.last %},{% endif %}{% endfor %}
+       },
+       "SharedScope":"user",
+       "TaskDefinition":{
+          "ObjectType":"workflow.TaskDefinition",
+          "Selector":"Name eq \"{{reference_name}}\" and Version eq {{version}}"
+       }
+    },
+    "ClassId":"bulk.RestSubRequest",
+    "ObjectType":"bulk.RestSubRequest",
+    "TargetMoid":"",
+    "Uri":"/v1/workflow/BatchApiExecutors",
+    "Verb":"POST"
+ }

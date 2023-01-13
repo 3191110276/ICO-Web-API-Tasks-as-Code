@@ -1,0 +1,50 @@
+{
+   "ClassId":"workflow.BatchApiExecutor",
+    "Name":"{{display_name}}",
+    "Description":"{{description}}",
+    "Batch":[
+       {
+         "ClassId":"workflow.WebApi",
+          "ObjectType":"workflow.WebApi",
+          "Label":"{{display_name}}",
+          "Name":"{{reference_name}}",
+          "Outcomes":[
+             
+          ],
+          "Description":"{{description}}",
+          "ContentType":"json",
+          "TargetType":"Endpoint",
+          "Protocol":"",
+          "Method":"{{method}}",
+          "Url":"{{path}}",
+          "Headers":null,
+          "Cookies":null,
+          {% if body != None %}"Body":{{body}},{% endif %}
+          "ResponseSpec":{
+             "ObjectType":"content.Grammar",
+             "Parameters":[
+                {% for output in outputs %}
+                {
+                   "Path": "{{output['jsonpath']}}",
+                   "Name": "{{output['reference_name']}}",
+                   "Type": "{{output['type']}}",
+                   "ObjectType": "content.Parameter"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+             ]
+          }
+       }
+    ],
+    "Output":{
+      {% for output in outputs %}
+      "{{output['reference_name']}}": "{{'{{.global.'}}{{reference_name}}{{'.output.'}}{{output['reference_name']}}{{'}}'}}"
+      {% if not loop.last %},{% endif %}{% endfor %}
+    },
+    "TaskDefinition":{
+       "ClassId":"mo.MoRef",
+       "ObjectType":"workflow.TaskDefinition",
+       "Moid":"{{task_definition}}"
+    }
+ }
+
+

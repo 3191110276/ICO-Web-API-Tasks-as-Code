@@ -1,0 +1,138 @@
+{
+    "Body":{
+       "ClassId":"workflow.TaskDefinition",
+       "DefaultVersion":true,
+       "Description":"{{description}}",
+       "Label":"{{display_name}}",
+       "Name":"{{reference_name}}",
+       "ObjectType":"workflow.TaskDefinition",
+       "Properties":{
+          "ExternalMeta":true,
+          "InputDefinition":[
+            {
+               "CustomDataTypeProperties":{
+                  "CatalogMoid":"shared",
+                  "ObjectType":"workflow.CustomDataProperty"
+               },
+               "Default":{
+                  "ObjectType":"workflow.DefaultValue"
+               },
+               "Description":"The API call can be made to Intersight or an external endpoint added as Target. Target should be in claimed or connected state. Please refer Supported Endpoints section in the Web API request end user documentation for the list of Intersight Targets on which Web API task can be invoked. An empty value for this input indicates that the API call is made to Intersight.\n",
+               "DisplayMeta":{
+                  "InventorySelector":true,
+                  "ObjectType":"workflow.DisplayMeta",
+                  "WidgetType":"None"
+               },
+               "Label":"{{target_name}}",
+               "Name":"Target",
+               "ObjectType":"workflow.TargetDataType",
+               "Properties":[
+                  {
+                     "DisplayAttributes":[
+                        "Name",
+                        "TargetType"
+                     ],
+                     "ObjectType":"workflow.TargetProperty",
+                     "Selector":"/api/v1/asset/Targets?$filter=((TargetType eq HTTPEndpoint and Status eq Claimed) or ((TargetType eq PureStorageFlashArray or TargetType eq HitachiVirtualStoragePlatform or TargetType eq NetAppActiveIqUnifiedManager or TargetType eq TerraformCloud or TargetType eq VmwareVcenter or TargetType eq APIC or TargetType eq MDSDevice or TargetType eq NexusDevice or TargetType eq UCSD or TargetType eq RedfishServer or TargetType eq UCSC890) and Status eq Connected))",
+                     "SelectorProperty":{
+                        "Method":"GET",
+                        "ObjectType":"workflow.SelectorProperty"
+                     },
+                     "SupportedObjects":[
+                        "asset.Target"
+                     ]
+                  }
+               ],
+               "Required":true
+            }{% for input in inputs %},{
+               "Default":{
+                  "ObjectType":"workflow.DefaultValue"
+               },
+               "Description":"{{input['description']}}",
+               "DisplayMeta":{
+                  "InventorySelector":true,
+                  "ObjectType":"workflow.DisplayMeta",
+                  "WidgetType":"None"
+               },
+               "Label":"{{input['display_name']}}",
+               "Name":"{{input['reference_name']}}",
+               "ObjectType":"workflow.PrimitiveDataType",
+               "Properties":{
+                  "Constraints":{
+                     "EnumList":[
+                        
+                     ],
+                     "ObjectType":"workflow.Constraints"
+                  },
+                  "InventorySelector":[
+                     
+                  ],
+                  "ObjectType":"workflow.PrimitiveDataProperty",
+                  "Type":"{{input['type']}}"
+               },
+               "Required":{{ input['required'] | lower }}
+            }{% endfor %}
+          ],
+          "ObjectType":"workflow.Properties",
+          "OutputDefinition":[
+            {% for output in outputs %}{
+               "Default":{
+                  "ObjectType":"workflow.DefaultValue"
+               },
+               "DisplayMeta":{
+                  "InventorySelector":true,
+                  "ObjectType":"workflow.DisplayMeta",
+                  "WidgetType":"None"
+               },
+               "Label":"{{output['display_name']}}",
+               "Name":"{{output['reference_name']}}",
+               "ObjectType":"workflow.PrimitiveDataType",
+               "Properties":{
+                  "Constraints":{
+                     "EnumList":[],
+                        "ObjectType":"workflow.Constraints"
+                  },
+                  "InventorySelector":[],
+                  "ObjectType":"workflow.PrimitiveDataProperty",
+                  "Type":"{{output['type']}}"
+               }
+            }{% if not loop.last %},{% endif %}{% endfor %}
+          ],
+          "RetryCount":3,
+          "RetryDelay":60,
+          "RetryPolicy":"Fixed",
+          "SupportStatus":"Supported",
+          "Timeout":600,
+          "TimeoutPolicy":"Timeout"
+       },
+       "RollbackTasks":[
+          {% if rollback != None %}
+          {
+            "CatalogMoid":"user",
+            "InputParameters":{
+               "Target":"${task.input.Target}"
+               {% for r in rollback['inputs'] %}
+               ,"{{r['input']}}": {{r['value'] | tojson }}
+               {% endfor %}
+            },
+            "Name":"{{rollback['task_name']}}",
+            "ObjectType":"workflow.RollbackTask",
+            "Version":{{version}}
+         }
+         {% endif %}
+       ],
+       "SharedScope":"user",
+       "Tags":[
+          {
+             "Key":"category",
+             "Value":"{{category}}"
+          }
+       ],
+       "Version":{{version}}
+    },
+    "ClassId":"bulk.RestSubRequest",
+    "ObjectType":"bulk.RestSubRequest",
+    "TargetMoid":"",
+    "Uri":"/v1/workflow/TaskDefinitions",
+    "Verb":"POST"
+ }

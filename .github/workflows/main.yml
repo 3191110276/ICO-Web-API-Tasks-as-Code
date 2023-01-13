@@ -1,0 +1,64 @@
+name: 'Build Script'
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/main.yml'
+      - '.gitignore'
+permissions:
+  actions: none
+  checks: none
+  contents: write
+  deployments: none
+  id-token: none
+  issues: none
+  discussions: none
+  packages: write
+  pages: none
+  pull-requests: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+jobs:
+  build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v4
+          with:
+            python-version: '3.x'
+            cache: 'pip'
+        - name: Run pip install
+          run: pip install -r requirements.txt
+        - name: Run Python Script
+          run: python main.py
+          env:
+            VERSION: ${{ github.run_number }}
+        - name: Create Release
+          uses: actions/create-release@v1
+          id: create_release
+          with:
+            draft: false
+            prerelease: false
+            release_name: Release v${{ github.run_number }}
+            tag_name: ${{ github.ref_name }}-v${{ github.run_number }}
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
+        - name: Create ZIP file
+          run: zip -r import_file.zip ./import_files
+        - name: Upload Artifact for Build
+          uses: actions/upload-artifact@v2
+          with: 
+            name: import_files
+            path: ./import_files
+        - name: Upload Release Artifact
+          uses: actions/upload-release-asset@v1
+          with: 
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./import_file.zip
+            asset_name: import_file.zip
+            asset_content_type: application/zip
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
