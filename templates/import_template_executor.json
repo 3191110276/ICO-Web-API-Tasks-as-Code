@@ -40,9 +40,7 @@
              "Url":"{{path}}"
           }
        ],
-       "CancelAction":[
-          
-       ],
+       "CancelAction":[],
        "ClassId":"workflow.BatchApiExecutor",
        "Constraints":{
           "ObjectType":"workflow.TaskConstraints"
